@@ -16,8 +16,21 @@ namespace http_client {
 
     class HttpClient{
     public:
-        string 					get (const string& host, const string& port, const string& path, data_type type=HTML);
-        json					getJSON (const string& host, const string& port, const string& path);
+        string 	get (const string& host, const string& port, const string& path, data_type type=HTML);
+        json	getJSON (const string& host, const string& port, const string& path);
+
+        /**
+         * @brief postJSON post json data to server
+         * @param host
+         * @param port
+         * @param path
+         * @param post_data string representation of the post data
+         * @return json return from server
+         */
+        json  	postJSON(const string& host, const string& port,
+                         const string& path, const string& api_key,
+                         const string& post_data);
+
     };
 } //namespace http_client
 
