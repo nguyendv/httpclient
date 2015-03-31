@@ -34,7 +34,7 @@ namespace testing {
         string detail = j["detail"];
         EXPECT_EQ(detail, "Mưa rào vài nơi, và giông");
     }
-}
+} // namespace testing
 
 int main(int argc, char** argv){
     ::testing::InitGoogleTest(&argc, argv);

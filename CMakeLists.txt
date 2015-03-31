@@ -10,9 +10,11 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
 set(Boost_INCLUDE_DIR ../../thirdParty/boost_1_57_0)
 set(Boost_LIBRARY_DIR ../../thirdParty/boost_1_57_0/stage/lib)
 set(Boost_USE_STATIC_LIBS ON)
+
 find_package(Boost COMPONENTS system REQUIRED)
 
 #add_executable(HttpClient httpclient.cpp main.cpp)
