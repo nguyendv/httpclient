@@ -14,10 +14,3 @@ find_package(Boost COMPONENTS system REQUIRED)
 
 target_link_libraries (YourApp ${Boost_LIBRARIES})
 ```
-### HTTPS ###
-* add definition HTTPS to the project to use HTTPSCLIENT. Or link directly with libHttpsClient.a
-* To use boost's https features, libssl and libcrypto (in openssl) are also dependencies of HttpClient library.
-* In future, if openssl is not supported any more, we can remove all https features, so we will able to use the HttpClient library with normal http requests.
-
-###TODO###
-* Find a way to use both http and https in the same project. Currently we can only link to either httpclient or httpsclient
