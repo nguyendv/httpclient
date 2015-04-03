@@ -148,7 +148,6 @@ string HttpClient::get(const string &path, data_type type)
     json HttpClient::getJSON (const string& path){
         try{
             string data = get(path, data_type::JSON);
-            cout << data;
             return json::parse(data);
         }catch (std::exception & e){
             std::cout << "Exception: " << e.what() << "\n\n";

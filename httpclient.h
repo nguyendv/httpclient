@@ -5,7 +5,7 @@
 #include <boost/asio.hpp>
 #include <boost/asio/ip/tcp.hpp>
 
-#define HTTPS
+//#define HTTPS
 
 
 #include <iostream>

@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.2)
 
 project("HttpClient")
 
+
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR
     "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     set(warnings "-Wall -Wextra -Werror")
@@ -17,15 +18,18 @@ set(Boost_USE_STATIC_LIBS ON)
 
 find_package(Boost COMPONENTS system REQUIRED)
 
-#add_executable(HttpClient httpclient.cpp main.cpp)
 add_library(HttpClient STATIC	httpclient.cpp)
+add_library(HttpsClient STATIC httpclient.cpp)
+
+set_property(TARGET HttpsClient PROPERTY COMPILE_DEFINITIONS HTTPS)
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}
                      ${Boost_INCLUDE_DIR}
                      ../../thirdParty/json/src
                     )
 #link_directories
-target_link_libraries (HttpClient ${Boost_LIBRARIES} ssl crypto)
+target_link_libraries (HttpClient ${Boost_LIBRARIES} )
+target_link_libraries (HttpsClient ${Boost_LIBRARIES} ssl crypto)
 
 enable_testing()
 

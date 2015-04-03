@@ -13,7 +13,11 @@ link_directories (${GTEST_DIR}/build-mac )
 
 add_executable (HttpClientTest httpclient_test.cpp)
 
-target_link_libraries (HttpClientTest 	HttpClient
-                                        gtest
-                                        )
+add_executable (HttpsClientTest httpclient_test.cpp)
+set_property(TARGET HttpsClientTest PROPERTY COMPILE_DEFINITIONS HTTPS)
+
+target_link_libraries (HttpClientTest 	HttpClient gtest)
+target_link_libraries (HttpsClientTest 	HttpsClient gtest)
+
 add_test(HttpClientTest HttpClientTest)
+add_test(HttpsClientTest HttpsClientTest)
