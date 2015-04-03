@@ -11,16 +11,6 @@ namespace testing {
         virtual void TearDown(){}
     };
 
-#ifdef HTTPS
-    TEST_F(HttpClientTest, Get){
-        http_client::HttpClient client("graph.facebook.com");
-        client.set_access_token("CAACEdEose0cBAE9iZAU4DG1midgF8y8WHu1pdCDrNfOtx71gVD3y2TgHkHnBXvRzy8HHoiViZB4zWZASH8ZB3ZBzqVH0jR23v5X9BzGRgR4Dxy4hcjV7O1OomxTk1XZArd9jfmITuhcVbPEowxqZCI9ZAkV1r0WnuUdmZArZCmmWTdjalSo7ure3WCVOp22mjiyJ75OfekNsYHZBu0GKEuP83EEZCxDOCmlKxZCIZD");
-        json j = client.getJSON("/v2.3/me");
-        //string gender = j["gender"];
-        //EXPECT_EQ(gender, "male");
-    }
-
-#else
 
     TEST_F (HttpClientTest, Get){
         http_client::HttpClient client("www.boost.org", "");
@@ -45,7 +35,6 @@ namespace testing {
         string detail = j["detail"];
         EXPECT_EQ(detail, "Mưa rào vài nơi, và giông");
     }
-#endif
 } // namespace testing
 
 

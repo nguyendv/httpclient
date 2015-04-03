@@ -5,9 +5,6 @@
 #include <boost/asio.hpp>
 #include <boost/asio/ip/tcp.hpp>
 
-//#define HTTPS
-
-
 #include <iostream>
 #include <string>
 #include <json.hpp>
@@ -16,12 +13,7 @@ using boost::asio::ip::tcp;
 using json = nlohmann::json;
 using namespace std;
 
-#ifdef HTTPS
-#include <boost/asio/ssl.hpp>
-#include <boost/asio/ssl/stream.hpp>
 
-typedef boost::asio::ssl::stream<tcp::socket> ssl_socket;
-#endif
 
 namespace http_client {
 
@@ -51,11 +43,7 @@ namespace http_client {
     private:
         boost::asio::io_service _io_service;
         tcp::resolver::iterator _endpoint_iter;
-#ifdef HTTPS
-        ssl_socket*				_psocket;
-#else
         tcp::socket*            _psocket;
-#endif
         tcp::resolver::query*   _pquery;
         string					_host;
 

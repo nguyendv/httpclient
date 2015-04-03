@@ -7,47 +7,20 @@
 namespace http_client {
 
 
-
-#ifdef HTTPS
-bool verifyCA(bool preverified, boost::asio::ssl::verify_context& ctx)
-{
-    char subject_name[256];
-    X509* cert = X509_STORE_CTX_get_current_cert((X509_STORE_CTX*) ctx.native_handle());
-    X509_NAME_oneline(X509_get_subject_name(cert), subject_name, 256);
-    //std::cout << "------------------\nVerifying " << subject_name << "\ntrust: " << preverified<<"\n";
-
-    return preverified;
-}
-#endif
-
 HttpClient::HttpClient(const string &host, const string &port)
 {
     try{
         // Get a list of endpoints
         tcp::resolver resolver(_io_service);
-#ifdef HTTPS
-        _pquery = new tcp::resolver::query(host, "https");
-#else
         if (port == "")
             _pquery = new tcp::resolver::query(host, "http");
         else
             _pquery = new tcp::resolver::query(host, port);
-#endif
         _endpoint_iter = resolver.resolve(*_pquery);
 
         // Try each endpoint util we successfull establish a connection
-#ifdef HTTPS
-        boost::asio::ssl::context ctx(boost::asio::ssl::context::sslv23);
-        ctx.set_default_verify_paths();
-        _psocket = new ssl_socket(_io_service, ctx);
-        boost::asio::connect(_psocket->lowest_layer(), _endpoint_iter);
-        _psocket->set_verify_mode(boost::asio::ssl::verify_peer);
-        _psocket->set_verify_callback(verifyCA);
-        _psocket->handshake(ssl_socket::client);
-#else
         _psocket = new tcp::socket(_io_service);
         boost::asio::connect(*_psocket, _endpoint_iter);
-#endif
     }
     catch (std::exception& e)
     {

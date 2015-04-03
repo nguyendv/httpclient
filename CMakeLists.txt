@@ -19,9 +19,7 @@ set(Boost_USE_STATIC_LIBS ON)
 find_package(Boost COMPONENTS system REQUIRED)
 
 add_library(HttpClient STATIC	httpclient.cpp)
-add_library(HttpsClient STATIC httpclient.cpp)
 
-set_property(TARGET HttpsClient PROPERTY COMPILE_DEFINITIONS HTTPS)
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}
                      ${Boost_INCLUDE_DIR}
@@ -29,7 +27,6 @@ include_directories (${CMAKE_CURRENT_SOURCE_DIR}
                     )
 #link_directories
 target_link_libraries (HttpClient ${Boost_LIBRARIES} )
-target_link_libraries (HttpsClient ${Boost_LIBRARIES} ssl crypto)
 
 enable_testing()
 
