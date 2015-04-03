@@ -7,20 +7,47 @@
 namespace http_client {
 
 
+
+#ifdef HTTPS
+bool verifyCA(bool preverified, boost::asio::ssl::verify_context& ctx)
+{
+    char subject_name[256];
+    X509* cert = X509_STORE_CTX_get_current_cert((X509_STORE_CTX*) ctx.native_handle());
+    X509_NAME_oneline(X509_get_subject_name(cert), subject_name, 256);
+    //std::cout << "------------------\nVerifying " << subject_name << "\ntrust: " << preverified<<"\n";
+
+    return preverified;
+}
+#endif
+
 HttpClient::HttpClient(const string &host, const string &port)
 {
     try{
         // Get a list of endpoints
         tcp::resolver resolver(_io_service);
+#ifdef HTTPS
+        _pquery = new tcp::resolver::query(host, "https");
+#else
         if (port == "")
             _pquery = new tcp::resolver::query(host, "http");
         else
             _pquery = new tcp::resolver::query(host, port);
+#endif
         _endpoint_iter = resolver.resolve(*_pquery);
 
         // Try each endpoint util we successfull establish a connection
+#ifdef HTTPS
+        boost::asio::ssl::context ctx(boost::asio::ssl::context::sslv23);
+        ctx.set_default_verify_paths();
+        _psocket = new ssl_socket(_io_service, ctx);
+        boost::asio::connect(_psocket->lowest_layer(), _endpoint_iter);
+        _psocket->set_verify_mode(boost::asio::ssl::verify_peer);
+        _psocket->set_verify_callback(verifyCA);
+        _psocket->handshake(ssl_socket::client);
+#else
         _psocket = new tcp::socket(_io_service);
         boost::asio::connect(*_psocket, _endpoint_iter);
+#endif
     }
     catch (std::exception& e)
     {
@@ -53,6 +80,10 @@ string HttpClient::get(const string &path, data_type type)
                 request_stream << "Accept: application/json \r\n";
             else
                 request_stream << "Accept: */* \r\n";
+            if (_x_api_key != "")
+                request_stream << "X-Api-Key: " << _x_api_key << "\r\n";
+            if (_access_token != "")
+                request_stream << "Authorization: Bearer " << _access_token << "\r\n";
             request_stream << "Connection: close \r\n\r\n";
 
             // Send the request
@@ -91,16 +122,21 @@ string HttpClient::get(const string &path, data_type type)
             //do something with this header
             }
 
+            string ret;			// result body
+            ostringstream ssRes;
+            ssRes << &response;
+            ret.append(ssRes.str());
             // Read until EOF
             boost::system::error_code ec;
-            std::stringstream ret;
-            while (boost::asio::read(*_psocket, response, boost::asio::transfer_at_least(1), ec))
-                ret << &response;
+            while (boost::asio::read(*_psocket, response, boost::asio::transfer_at_least(1), ec)){
+                ostringstream ssRes;
+                ssRes << &response;
+                ret.append(ssRes.str());
+            }
             if ( ec != boost::asio::error::eof){
                 throw boost::system::system_error(ec);
             }
-
-            return ret.str();
+            return ret;
         }
         catch (std::exception& e)
         {
@@ -111,7 +147,9 @@ string HttpClient::get(const string &path, data_type type)
 
     json HttpClient::getJSON (const string& path){
         try{
-            return json::parse(get(path,data_type::JSON));
+            string data = get(path, data_type::JSON);
+            cout << data;
+            return json::parse(data);
         }catch (std::exception & e){
             std::cout << "Exception: " << e.what() << "\n\n";
             return json::parse(std::string("\"error\":")  + std::string(e.what()));
@@ -119,8 +157,7 @@ string HttpClient::get(const string &path, data_type type)
     }
 
 
-    json HttpClient::postJSON(const string& path, const string& post_data,
-                              const string& api_key)
+    json HttpClient::postJSON(const string& path, const string& post_data)
     {
         try
         {
@@ -132,8 +169,10 @@ string HttpClient::get(const string &path, data_type type)
             request_stream << "POST " << path << " HTTP/1.1\r\n";
             request_stream << "Host: " << _host << "\r\n";
             request_stream << "Accept: application/json \r\n";
-            if (api_key != "")
-                request_stream << "X-Api-Key: " << api_key << "\r\n";
+            if (_x_api_key != "")
+                request_stream << "X-Api-Key: " << _x_api_key << "\r\n";
+            if (_access_token != "")
+                request_stream << "Authorization: Bearer " << _access_token << "\r\n";
             request_stream << "Content-type: application/json \r\n";
             int content_length = post_data.length();
             request_stream << "Content-length: " << content_length << "\r\n";

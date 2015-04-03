@@ -11,6 +11,17 @@ namespace testing {
         virtual void TearDown(){}
     };
 
+#ifdef HTTPS
+    TEST_F(HttpClientTest, Get){
+        http_client::HttpClient client("graph.facebook.com");
+        client.set_access_token("CAACEdEose0cBAE9iZAU4DG1midgF8y8WHu1pdCDrNfOtx71gVD3y2TgHkHnBXvRzy8HHoiViZB4zWZASH8ZB3ZBzqVH0jR23v5X9BzGRgR4Dxy4hcjV7O1OomxTk1XZArd9jfmITuhcVbPEowxqZCI9ZAkV1r0WnuUdmZArZCmmWTdjalSo7ure3WCVOp22mjiyJ75OfekNsYHZBu0GKEuP83EEZCxDOCmlKxZCIZD");
+        json j = client.getJSON("/v2.3/me");
+        //string gender = j["gender"];
+        //EXPECT_EQ(gender, "male");
+    }
+
+#else
+
     TEST_F (HttpClientTest, Get){
         http_client::HttpClient client("www.boost.org", "");
         std::string ret = client.get("/LICENSE_1_0.txt");
@@ -29,10 +40,12 @@ namespace testing {
     TEST_F(HttpClientTest, PostJson){
         http_client::HttpClient client("api.myapp.com", "3000");
         string post_data = "{\"article\":{\"region_name\":\"DNB\", \"detail\":\"Mưa rào vài nơi, và giông\", \"publish_at\":\"2015-03-29 01:00:00.000000\"}}";
-        json j = client.postJSON("/v1/articles", post_data,"mnvdsl2f0ajfa-3jfsdoifas9fjafdnv");
+        client.set_x_api_key("mnvdsl2f0ajfa-3jfsdoifas9fjafdnv");
+        json j = client.postJSON("/v1/articles", post_data);
         string detail = j["detail"];
         EXPECT_EQ(detail, "Mưa rào vài nơi, và giông");
     }
+#endif
 } // namespace testing
 
 

@@ -4,16 +4,24 @@
 
 #include <boost/asio.hpp>
 #include <boost/asio/ip/tcp.hpp>
-//#include <boost/asio/ssl.hpp>
-//#include <boost/asio/ssl/stream.hpp>
+
+#define HTTPS
+
+
 #include <iostream>
 #include <string>
 #include <json.hpp>
 
 using boost::asio::ip::tcp;
-//typedef boost::asio::ssl::stream<tcp::socket> ssl_socket;
 using json = nlohmann::json;
 using namespace std;
+
+#ifdef HTTPS
+#include <boost/asio/ssl.hpp>
+#include <boost/asio/ssl/stream.hpp>
+
+typedef boost::asio::ssl::stream<tcp::socket> ssl_socket;
+#endif
 
 namespace http_client {
 
@@ -24,8 +32,10 @@ namespace http_client {
 
     class HttpClient{
     public:
-        HttpClient (const string& host, const string& port);
+        HttpClient (const string& host, const string& port="");
         ~HttpClient();
+        void    set_x_api_key(const string& x_api_key){_x_api_key = x_api_key;}
+        void    set_access_token(const string& access_token){_access_token = access_token;}
         string 	get (const string& path, data_type type=HTML);
         json	getJSON (const string& path);
 
@@ -37,14 +47,20 @@ namespace http_client {
          * @param post_data string representation of the post data
          * @return json return from server
          */
-        json  	postJSON(const string& path, const string& post_data,
-                         const string& api_key="");
+        json  	postJSON(const string& path, const string& post_data);
     private:
         boost::asio::io_service _io_service;
         tcp::resolver::iterator _endpoint_iter;
+#ifdef HTTPS
+        ssl_socket*				_psocket;
+#else
         tcp::socket*            _psocket;
+#endif
         tcp::resolver::query*   _pquery;
         string					_host;
+
+        string					_x_api_key;
+        string					_access_token;
     };
 } //namespace http_client
 

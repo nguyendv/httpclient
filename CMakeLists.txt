@@ -9,7 +9,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     set(warnings "/W4 /WX /EHsc")
 endif()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wno-deprecated-declarations")
 
 set(Boost_INCLUDE_DIR ../../thirdParty/boost_1_57_0)
 set(Boost_LIBRARY_DIR ../../thirdParty/boost_1_57_0/stage/lib)
@@ -25,7 +25,7 @@ include_directories (${CMAKE_CURRENT_SOURCE_DIR}
                      ../../thirdParty/json/src
                     )
 #link_directories
-target_link_libraries (HttpClient ${Boost_LIBRARIES})
+target_link_libraries (HttpClient ${Boost_LIBRARIES} ssl crypto)
 
 enable_testing()
 
