@@ -26,20 +26,28 @@ namespace http_client {
     public:
         HttpClient (const string& host, const string& port="");
         ~HttpClient();
+
+        /**
+         * @brief set_x_api_key set X-Api-Key header for the request
+         */
         void    set_x_api_key(const string& x_api_key){_x_api_key = x_api_key;}
+
+        /**
+         * @brief set_access_token set OAuth2 access token for the request
+         */
         void    set_access_token(const string& access_token){_access_token = access_token;}
+
+        /**
+         * @brief get set GET request
+         */
         string 	get (const string& path, data_type type=HTML);
-        json	getJSON (const string& path);
 
         /**
          * @brief postJSON post json data to server
-         * @param host
-         * @param port
-         * @param path
          * @param post_data string representation of the post data
-         * @return json return from server
+         * @return data return from server
          */
-        json  	postJSON(const string& path, const string& post_data);
+        string  	postJSON(const string& path, const string& post_data="");
     private:
         boost::asio::io_service _io_service;
         tcp::resolver::iterator _endpoint_iter;

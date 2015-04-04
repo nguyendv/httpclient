@@ -20,7 +20,8 @@ namespace testing {
 
     TEST_F(HttpClientTest, GetJson){
         http_client::HttpClient client("127.0.0.1", "3000");
-        json j = client.getJSON("/articles/9");
+        string data = client.get("/articles/9", http_client::JSON);
+        json j = json::parse(data);
         std::string title = j["title"];
         std::string text = j["text"];
         EXPECT_EQ(title, "Test Article");
@@ -29,11 +30,12 @@ namespace testing {
 
     TEST_F(HttpClientTest, PostJson){
         http_client::HttpClient client("api.myapp.com", "3000");
-        string post_data = "{\"article\":{\"region_name\":\"DNB\", \"detail\":\"Mưa rào vài nơi, và giông\", \"publish_at\":\"2015-03-29 01:00:00.000000\"}}";
+        string post_data = "{\"article\":{\"region_name\":\"DNB\", \"detail\":\"Hic Mưa rào vài nơi, và giông\", \"publish_at\":\"2015-03-29 01:00:00.000000\"}}";
         client.set_x_api_key("mnvdsl2f0ajfa-3jfsdoifas9fjafdnv");
-        json j = client.postJSON("/v1/articles", post_data);
+        string ret_data = client.postJSON("/v1/articles", post_data);
+        json j = json::parse(ret_data);
         string detail = j["detail"];
-        EXPECT_EQ(detail, "Mưa rào vài nơi, và giông");
+        EXPECT_EQ(detail, "Hic Mưa rào vài nơi, và giông");
     }
 } // namespace testing
 
