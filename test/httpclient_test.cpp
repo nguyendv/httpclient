@@ -32,10 +32,17 @@ namespace testing {
         http_client::HttpClient client("api.myapp.com", "3000");
         string post_data = "{\"article\":{\"region_name\":\"DNB\", \"detail\":\"Hic Mưa rào vài nơi, và giông\", \"publish_at\":\"2015-03-29 01:00:00.000000\"}}";
         client.set_x_api_key("mnvdsl2f0ajfa-3jfsdoifas9fjafdnv");
-        string ret_data = client.postJSON("/v1/articles", post_data);
+        string ret_data = client.post("/v1/articles", post_data, http_client::JSON);
         json j = json::parse(ret_data);
         string detail = j["detail"];
         EXPECT_EQ(detail, "Hic Mưa rào vài nơi, và giông");
+    }
+
+    TEST_F(HttpClientTest, PostFormData){
+        http_client::HttpClient client("localhost", "3000");
+        string post_data = "article[title]=hichic&article[text]=hichichichic";
+        string ret_data = client.post("/articles", post_data);
+        EXPECT_NE(ret_data.find("You are being"), string::npos);
     }
 } // namespace testing
 

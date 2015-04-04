@@ -43,11 +43,13 @@ namespace http_client {
         string 	get (const string& path, data_type type=HTML);
 
         /**
-         * @brief postJSON post json data to server
-         * @param post_data string representation of the post data
-         * @return data return from server
+         * @brief post post data to server
+         * @param path
+         * @param post_data
+         * @param type HTML: post_data is form data. type JSON: post_data is json string
+         * @return
          */
-        string  	postJSON(const string& path, const string& post_data="");
+        string  	post(const string& path, const string& post_data="", data_type type=HTML);
     private:
         boost::asio::io_service _io_service;
         tcp::resolver::iterator _endpoint_iter;

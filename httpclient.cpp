@@ -118,7 +118,7 @@ string HttpClient::get(const string &path, data_type type)
         }
 }
 
-    string HttpClient::postJSON(const string& path, const string& post_data)
+    string HttpClient::post(const string& path, const string& post_data, data_type type)
     {
         try
         {
@@ -129,12 +129,16 @@ string HttpClient::get(const string &path, data_type type)
             std::ostream request_stream(&request);
             request_stream << "POST " << path << " HTTP/1.1\r\n";
             request_stream << "Host: " << _host << "\r\n";
-            request_stream << "Accept: application/json \r\n";
+            if (type == JSON)
+                request_stream << "Accept: application/json \r\n";
+            else
+                request_stream << "Accept: */* \r\n";
             if (_x_api_key != "")
                 request_stream << "X-Api-Key: " << _x_api_key << "\r\n";
             if (_access_token != "")
                 request_stream << "Authorization: Bearer " << _access_token << "\r\n";
-            request_stream << "Content-type: application/json \r\n";
+            if (type == JSON)
+                request_stream << "Content-type: application/json \r\n";
             if (post_data != ""){
                 int content_length = post_data.length();
                 request_stream << "Content-length: " << content_length << "\r\n";
@@ -163,13 +167,17 @@ string HttpClient::get(const string &path, data_type type)
 
             if (!response_stream || http_version.substr(0,5) != "HTTP/")
             {
-                return json::parse("{\"error\": \"Invalid response\"}");
+                return "error: Invalid response";
             }
 
             if (status_code != 200)
             {
-                std::cout << "status_code: " << status_code << "\n";
-                return json::parse("{\"error\": \"Status Code not 2000\"}");
+                if (status_code == 302)
+                    std::cout << "redirecting";
+                else{
+                    std::cout << "status_code: " << status_code << "\n";
+                    return "error: status code not 200";
+                }
             }
 
             // Read the response headers, which are terminated by a black line.
@@ -201,7 +209,7 @@ string HttpClient::get(const string &path, data_type type)
        catch (std::exception& e)
        {
            std::cout << "Exception: " << e.what() << "\n\n";
-           return json::parse(std::string("\"error\":")  + std::string(e.what()));
+           return std::string("error")  + std::string(e.what());
        }
    }
 
