@@ -22,8 +22,7 @@ add_library(HttpClient STATIC	httpclient.cpp)
 
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}
-                     ${Boost_INCLUDE_DIR}
-                     ../../thirdParty/json/src
+                     ${Boost_INCLUDE_DIR}                    
                     )
 #link_directories
 target_link_libraries (HttpClient ${Boost_LIBRARIES} )

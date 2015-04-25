@@ -1,5 +1,8 @@
 #include <gtest/gtest.h>
 #include "httpclient.h"
+
+#include "json.hpp"
+using json = nlohmann::json;
 namespace testing {
     class HttpClientTest : public Test
     {

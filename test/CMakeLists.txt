@@ -7,7 +7,8 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 
 endif()
 
-include_directories ( ${GTEST_DIR}/include )
+include_directories ( 	${GTEST_DIR}/include
+                        ../../../thirdParty/json/src)
 
 link_directories (${GTEST_DIR}/build-mac )
 
