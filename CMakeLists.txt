@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.2)
 
 project("HttpClient")
 
+set (CODE_DIR "/Users/vietdung2910/code")
+set (ASIO_INCLUDE_DIR ${CODE_DIR}/thirdParty/asio/asio/include )
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR
     "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
@@ -12,20 +14,14 @@ endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wno-deprecated-declarations")
 
-set(Boost_INCLUDE_DIR ../../thirdParty/boost_1_57_0)
-set(Boost_LIBRARY_DIR ../../thirdParty/boost_1_57_0/stage/lib)
-set(Boost_USE_STATIC_LIBS ON)
-
-find_package(Boost COMPONENTS system REQUIRED)
-
 add_library(HttpClient STATIC	httpclient.cpp)
 
+add_definitions(-DASIO_STANDALONE)
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}
-                     ${Boost_INCLUDE_DIR}                    
-                    )
+                     ${ASIO_INCLUDE_DIR})
 #link_directories
-target_link_libraries (HttpClient ${Boost_LIBRARIES} )
+target_link_libraries (HttpClient )
 
 enable_testing()
 

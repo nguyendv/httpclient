@@ -11,16 +11,16 @@ HttpClient::HttpClient(const string &host, const string &port)
 {
     try{
         // Get a list of endpoints
-        tcp::resolver resolver(_io_service);
+        tcp::resolver resolver(_io_context);
         if (port == "")
             _pquery = new tcp::resolver::query(host, "http");
         else
             _pquery = new tcp::resolver::query(host, port);
-        _endpoint_iter = resolver.resolve(*_pquery);
+        _endpoints = resolver.resolve(*_pquery);
 
         // Try each endpoint util we successfull establish a connection
-        _psocket = new tcp::socket(_io_service);
-        boost::asio::connect(*_psocket, _endpoint_iter);
+        _psocket = new tcp::socket(_io_context);
+        asio::connect(*_psocket, _endpoints);
     }
     catch (std::exception& e)
     {
@@ -45,7 +45,7 @@ string HttpClient::get(const string &path, data_type type)
             // Form the request. We specify the "Connection: close" header so that the s
             // server will close the socket after transmitting the response. This will
             // allow us to treat all data up until the EOF as the content.
-            boost::asio::streambuf request;
+            asio::streambuf request;
             std::ostream request_stream(&request);
             request_stream << "GET " << path << " HTTP/1.1\r\n";
             request_stream << "Host: " << _host << "\r\n";
@@ -60,13 +60,13 @@ string HttpClient::get(const string &path, data_type type)
             request_stream << "Connection: close \r\n\r\n";
 
             // Send the request
-            boost::asio::write(*_psocket, request);
+            asio::write(*_psocket, request);
 
             // Read the response status line. The response streambuf will automatically
             // grow to accommodate the entire line. The growth may be limited by passing
             // a maximum size to the streambuf constructor.
-            boost::asio::streambuf response;
-            boost::asio::read_until(*_psocket, response, "\r\n");
+            asio::streambuf response;
+            asio::read_until(*_psocket, response, "\r\n");
             // Check that response is OK
             std::istream response_stream(&response);
             std::string http_version;
@@ -88,7 +88,7 @@ string HttpClient::get(const string &path, data_type type)
             }
 
             // Read the response headers, which are terminated by a black line.
-            boost::asio::read_until(*_psocket, response, "\r\n\r\n");
+            asio::read_until(*_psocket, response, "\r\n\r\n");
             // Process the response headers
             std::string header;
             while (std::getline(response_stream, header) && header != "\r"){
@@ -100,14 +100,14 @@ string HttpClient::get(const string &path, data_type type)
             ssRes << &response;
             ret.append(ssRes.str());
             // Read until EOF
-            boost::system::error_code ec;
-            while (boost::asio::read(*_psocket, response, boost::asio::transfer_at_least(1), ec)){
+            asio::error_code ec;
+            while (asio::read(*_psocket, response, asio::transfer_at_least(1), ec)){
                 ostringstream ssRes;
                 ssRes << &response;
                 ret.append(ssRes.str());
             }
-            if ( ec != boost::asio::error::eof){
-                throw boost::system::system_error(ec);
+            if ( ec != asio::error::eof){
+                throw asio::system_error(ec);
             }
             return ret;
         }
@@ -125,7 +125,7 @@ string HttpClient::get(const string &path, data_type type)
             // Form the request. We specify the "Connection: close" header so that the s
             // server will close the socket after transmitting the response. This will
             // allow us to treat all data up until the EOF as the content.
-            boost::asio::streambuf request;
+            asio::streambuf request;
             std::ostream request_stream(&request);
             request_stream << "POST " << path << " HTTP/1.1\r\n";
             request_stream << "Host: " << _host << "\r\n";
@@ -149,13 +149,13 @@ string HttpClient::get(const string &path, data_type type)
                 request_stream << post_data;
 
             // Send the request
-            boost::asio::write(*_psocket, request);
+            asio::write(*_psocket, request);
 
             // Read the response status line. The response streambuf will automatically
             // grow to accommodate the entire line. The growth may be limited by passing
             // a maximum size to the streambuf constructor.
-            boost::asio::streambuf response;
-            boost::asio::read_until(*_psocket, response, "\r\n");
+            asio::streambuf response;
+            asio::read_until(*_psocket, response, "\r\n");
             // Check that response is OK
             std::istream response_stream(&response);
             std::string http_version;
@@ -181,7 +181,7 @@ string HttpClient::get(const string &path, data_type type)
             }
 
             // Read the response headers, which are terminated by a black line.
-            boost::asio::read_until(*_psocket, response, "\r\n\r\n");
+            asio::read_until(*_psocket, response, "\r\n\r\n");
             // Process the response headers
             std::string header;
             while (std::getline(response_stream, header) && header != "\r"){
@@ -194,15 +194,15 @@ string HttpClient::get(const string &path, data_type type)
             ret.append(oss.str());
 
             // Read until EOF
-            boost::system::error_code ec;
+            asio::error_code ec;
             //std::stringstream ret;
-            while (boost::asio::read(*_psocket, response, boost::asio::transfer_at_least(1), ec)){
+            while (asio::read(*_psocket, response, asio::transfer_at_least(1), ec)){
                 ostringstream oss;
                 oss << &response;
                 ret.append(oss.str());
             }
-            if ( ec != boost::asio::error::eof){
-                throw boost::system::system_error(ec);
+            if ( ec != asio::error::eof){
+                throw asio::system_error(ec);
             }
             return ret;
        }

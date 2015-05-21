@@ -2,13 +2,12 @@
 #define HTTP_CLIENT_H
 
 
-#include <boost/asio.hpp>
-#include <boost/asio/ip/tcp.hpp>
+#include <asio.hpp>
 
 #include <iostream>
 #include <string>
 
-using boost::asio::ip::tcp;
+using asio::ip::tcp;
 using namespace std;
 
 
@@ -49,11 +48,11 @@ namespace http_client {
          */
         string  	post(const string& path, const string& post_data="", data_type type=HTML);
     private:
-        boost::asio::io_service _io_service;
-        tcp::resolver::iterator _endpoint_iter;
-        tcp::socket*            _psocket;
-        tcp::resolver::query*   _pquery;
-        string					_host;
+        asio::io_context			_io_context;
+        tcp::resolver::results_type _endpoints;
+        tcp::socket*            	_psocket;
+        tcp::resolver::query*   	_pquery;
+        string						_host;
 
         string					_x_api_key;
         string					_access_token;

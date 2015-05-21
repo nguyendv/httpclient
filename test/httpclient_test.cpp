@@ -1,8 +1,7 @@
 #include <gtest/gtest.h>
 #include "httpclient.h"
+#include "MyJsonObject.h"
 
-#include "json.hpp"
-using json = nlohmann::json;
 namespace testing {
     class HttpClientTest : public Test
     {
@@ -24,9 +23,13 @@ namespace testing {
     TEST_F(HttpClientTest, GetJson){
         http_client::HttpClient client("127.0.0.1", "3000");
         string data = client.get("/articles/9", http_client::JSON);
-        json j = json::parse(data);
-        std::string title = j["title"];
-        std::string text = j["text"];
+        MyJsonObject jsonObj;
+        jsonObj.Parse(data);
+
+        string title;
+        EXPECT_TRUE(jsonObj.GetString("title", title));
+        string text;
+        EXPECT_TRUE(jsonObj.GetString("text", text));
         EXPECT_EQ(title, "Test Article");
         EXPECT_EQ(text, "Bài báo kiểm tra");	// Use Vietnamese to check unicode utf-8 support
     }
@@ -36,8 +39,11 @@ namespace testing {
         string post_data = "{\"article\":{\"region_name\":\"DNB\", \"detail\":\"Hic Mưa rào vài nơi, và giông\", \"publish_at\":\"2015-03-29 01:00:00.000000\"}}";
         client.set_x_api_key("mnvdsl2f0ajfa-3jfsdoifas9fjafdnv");
         string ret_data = client.post("/v1/articles", post_data, http_client::JSON);
-        json j = json::parse(ret_data);
-        string detail = j["detail"];
+
+        MyJsonObject jsonObj;
+        EXPECT_TRUE(jsonObj.Parse(ret_data));
+        string detail;
+        EXPECT_TRUE(jsonObj.GetString("detail", detail));
         EXPECT_EQ(detail, "Hic Mưa rào vài nơi, và giông");
     }
 
