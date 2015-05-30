@@ -1,6 +1,11 @@
 #include "httpclient.h"
 
 
+template <typename Exception>
+void asio::detail::throw_exception(const Exception& e){
+    printf("%s\n", "an asio exception occurs.");
+}
+
 
 
 
@@ -9,7 +14,7 @@ namespace http_client {
 
 HttpClient::HttpClient(const string &host, const string &port)
 {
-    try{
+//    try{
         // Get a list of endpoints
         tcp::resolver resolver(_io_context);
         if (port == "")
@@ -21,11 +26,11 @@ HttpClient::HttpClient(const string &host, const string &port)
         // Try each endpoint util we successfull establish a connection
         _psocket = new tcp::socket(_io_context);
         asio::connect(*_psocket, _endpoints);
-    }
-    catch (std::exception& e)
-    {
-        std::cout << "Exception: " << e.what() << "\n\n";
-    }
+//    }
+//    catch (std::exception& e)
+//    {
+//        std::cout << "Exception: " << e.what() << "\n\n";
+//    }
 
     _host = host;
 }
@@ -40,8 +45,7 @@ HttpClient::~HttpClient()
 
 string HttpClient::get(const string &path, data_type type)
 {
-    try
-        {
+//    try{
             // Form the request. We specify the "Connection: close" header so that the s
             // server will close the socket after transmitting the response. This will
             // allow us to treat all data up until the EOF as the content.
@@ -107,21 +111,20 @@ string HttpClient::get(const string &path, data_type type)
                 ret.append(ssRes.str());
             }
             if ( ec != asio::error::eof){
-                throw asio::system_error(ec);
+                //throw asio::system_error(ec);
             }
             return ret;
-        }
-        catch (std::exception& e)
-        {
-            std::cout << "Exception: " << e.what() << "\n\n";
-            return std::string("\"error\":")  + std::string(e.what());
-        }
+//        }
+//        catch (std::exception& e)
+//        {
+//            std::cout << "Exception: " << e.what() << "\n\n";
+//            return std::string("\"error\":")  + std::string(e.what());
+//        }
 }
 
     string HttpClient::post(const string& path, const string& post_data, data_type type)
     {
-        try
-        {
+//        try{
             // Form the request. We specify the "Connection: close" header so that the s
             // server will close the socket after transmitting the response. This will
             // allow us to treat all data up until the EOF as the content.
@@ -202,15 +205,15 @@ string HttpClient::get(const string &path, data_type type)
                 ret.append(oss.str());
             }
             if ( ec != asio::error::eof){
-                throw asio::system_error(ec);
+//                throw asio::system_error(ec);
             }
             return ret;
-       }
-       catch (std::exception& e)
-       {
-           std::cout << "Exception: " << e.what() << "\n\n";
-           return std::string("error")  + std::string(e.what());
-       }
+//       }
+//       catch (std::exception& e)
+//       {
+//           std::cout << "Exception: " << e.what() << "\n\n";
+//           return std::string("error")  + std::string(e.what());
+//       }
    }
 
 } // namespace http_client

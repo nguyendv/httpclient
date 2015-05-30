@@ -26,12 +26,8 @@ namespace testing {
         MyJsonObject jsonObj;
         jsonObj.Parse(data);
 
-        string title;
-        EXPECT_TRUE(jsonObj.GetString("title", title));
-        string text;
-        EXPECT_TRUE(jsonObj.GetString("text", text));
-        EXPECT_EQ(title, "Test Article");
-        EXPECT_EQ(text, "Bài báo kiểm tra");	// Use Vietnamese to check unicode utf-8 support
+        EXPECT_EQ("Test Article", jsonObj.GetString("title"));
+        EXPECT_EQ("Bài báo kiểm tra", jsonObj.GetString("text"));	// Use Vietnamese to check unicode utf-8 support
     }
 
     TEST_F(HttpClientTest, PostJson){
@@ -41,10 +37,8 @@ namespace testing {
         string ret_data = client.post("/v1/articles", post_data, http_client::JSON);
 
         MyJsonObject jsonObj;
-        EXPECT_TRUE(jsonObj.Parse(ret_data));
-        string detail;
-        EXPECT_TRUE(jsonObj.GetString("detail", detail));
-        EXPECT_EQ(detail, "Hic Mưa rào vài nơi, và giông");
+        EXPECT_TRUE(jsonObj.Parse(ret_data) == NO_ERROR);
+        EXPECT_EQ("Hic Mưa rào vài nơi, và giông", jsonObj.GetString("detail"));
     }
 
     TEST_F(HttpClientTest, PostFormData){
