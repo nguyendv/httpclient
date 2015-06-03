@@ -1,14 +1,6 @@
 #include "httpclient.h"
 
 
-template <typename Exception>
-void asio::detail::throw_exception(const Exception& e){
-    printf("%s\n", "an asio exception occurs.");
-}
-
-
-
-
 namespace http_client {
 
 

@@ -2,12 +2,9 @@
 #define HTTP_CLIENT_H
 
 
-#include <asio.hpp>
-
 #include <iostream>
 #include <string>
 
-using asio::ip::tcp;
 using namespace std;
 
 
