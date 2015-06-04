@@ -118,16 +118,16 @@ string HttpClient::getResponse(const string &request){
     char buf[1024];
     while(1){
         memset(buf, 0, sizeof buf);
-        int n = myrecv(_server_socket, buf, sizeof buf, 0);
-        if (n > 0){
-            for(int i = 0; i<n; ++i)
+        int bytes_received = myrecv(_server_socket, buf, sizeof buf, 0);
+        if (bytes_received > 0){
+            for(int i = 0; i<bytes_received; ++i)
                 response_stream << buf[i];
             continue;
         }
-        if (n == 0){
+        if (bytes_received == 0){
             break;
         }
-        if (n < 0){
+        if (bytes_received < 0){
             return "error: \"receive response error \"";
         }
     }
