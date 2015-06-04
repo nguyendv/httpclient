@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <string>
+#include "mysocket.h"
 
 using namespace std;
 
@@ -20,6 +21,12 @@ namespace http_client {
     public:
         HttpClient (const string& host, const string& port="");
         ~HttpClient();
+
+        int GetErrorCode()
+        {
+            printf("error: %d\n", _error);
+            return _error;
+        }
 
         /**
          * @brief set_x_api_key set X-Api-Key header for the request
@@ -45,14 +52,15 @@ namespace http_client {
          */
         string  	post(const string& path, const string& post_data="", data_type type=HTML);
     private:
-        asio::io_context			_io_context;
-        tcp::resolver::results_type _endpoints;
-        tcp::socket*            	_psocket;
-        tcp::resolver::query*   	_pquery;
-        string						_host;
 
-        string					_x_api_key;
-        string					_access_token;
+        string getResponse(const string& request);
+
+        mysocket		_server_socket;
+        int				_error;
+
+        string			_host;
+        string			_x_api_key;
+        string			_access_token;
     };
 } //namespace http_client
 

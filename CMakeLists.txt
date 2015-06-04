@@ -16,9 +16,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wno-deprecated-declarations 
 
 add_library(HttpClient STATIC	httpclient.cpp    )
 
-//add_definitions()
+#add_definitions()
 
-include_directories (${CMAKE_CURRENT_SOURCE_DIR}
+include_directories (	${CMAKE_CURRENT_SOURCE_DIR}
+                        ${CODE_DIR}/cpp/include
                      )
 #link_directories
 target_link_libraries (HttpClient )

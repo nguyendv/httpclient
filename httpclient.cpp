@@ -1,211 +1,143 @@
 #include "httpclient.h"
-
+#include "errors.h"
+#include <sstream>
 
 namespace http_client {
 
 
 HttpClient::HttpClient(const string &host, const string &port)
 {
-//    try{
-        // Get a list of endpoints
-        tcp::resolver resolver(_io_context);
-        if (port == "")
-            _pquery = new tcp::resolver::query(host, "http");
-        else
-            _pquery = new tcp::resolver::query(host, port);
-        _endpoints = resolver.resolve(*_pquery);
+    _error = NO_ERROR;
+    _server_socket = MY_INVALID_SOCKET;
 
-        // Try each endpoint util we successfull establish a connection
-        _psocket = new tcp::socket(_io_context);
-        asio::connect(*_psocket, _endpoints);
-//    }
-//    catch (std::exception& e)
-//    {
-//        std::cout << "Exception: " << e.what() << "\n\n";
-//    }
+    myaddrinfo hints, *server_info;
+
+    memset(&hints, 0, sizeof hints);
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+
+    string service;
+    if (port.empty())
+        service = "http";
+    else
+        service = port;
+    int status = mygetaddrinfo (host.c_str(), service.c_str(), &hints, &server_info);
+    if (status != 0){
+        _error = ADDR_INFO_ERROR;
+        return;
+    }
+
+    myaddrinfo *p;
+    for (p=server_info; p!=NULL; p=p->ai_next){
+        _server_socket = mycreatesocket (p->ai_family, p->ai_socktype, p->ai_protocol);
+        if (_server_socket == MY_INVALID_SOCKET){
+            _error = INVALID_SOCKET_ERROR;
+            continue;
+        }
+
+        if (myconnect(_server_socket, p->ai_addr, p->ai_addrlen) != 0){
+            _error = CONNECT_SOCKET_ERROR;
+            continue;
+        }
+
+        break;
+    }
+
+    if (p==NULL){
+        return;
+    }
+
+    freeaddrinfo(server_info);
+
+
 
     _host = host;
 }
 
 HttpClient::~HttpClient()
 {
-    if (_pquery != NULL)
-        delete _pquery;
-    if (_psocket != NULL)
-        delete _psocket;
 }
 
 string HttpClient::get(const string &path, data_type type)
 {
-//    try{
-            // Form the request. We specify the "Connection: close" header so that the s
-            // server will close the socket after transmitting the response. This will
-            // allow us to treat all data up until the EOF as the content.
-            asio::streambuf request;
-            std::ostream request_stream(&request);
-            request_stream << "GET " << path << " HTTP/1.1\r\n";
-            request_stream << "Host: " << _host << "\r\n";
-            if (type == data_type::JSON)
-                request_stream << "Accept: application/json \r\n";
-            else
-                request_stream << "Accept: */* \r\n";
-            if (_x_api_key != "")
-                request_stream << "X-Api-Key: " << _x_api_key << "\r\n";
-            if (_access_token != "")
-                request_stream << "Authorization: Bearer " << _access_token << "\r\n";
-            request_stream << "Connection: close \r\n\r\n";
+    assert (GetErrorCode() == NO_ERROR);
+    std::ostringstream request_stream;
+    request_stream << "GET " << path << " HTTP/1.1\r\n";
+    request_stream << "Host: " << _host << "\r\n";
+    if (type == data_type::JSON)
+        request_stream << "Accept: application/json \r\n";
+    else
+        request_stream << "Accept: */* \r\n";
+    if (_x_api_key != "")
+        request_stream << "X-Api-Key: " << _x_api_key << "\r\n";
+    if (_access_token != "")
+        request_stream << "Authorization: Bearer " << _access_token << "\r\n";
+    request_stream << "Connection: close \r\n\r\n";	// close socket connection after get all response
 
-            // Send the request
-            asio::write(*_psocket, request);
-
-            // Read the response status line. The response streambuf will automatically
-            // grow to accommodate the entire line. The growth may be limited by passing
-            // a maximum size to the streambuf constructor.
-            asio::streambuf response;
-            asio::read_until(*_psocket, response, "\r\n");
-            // Check that response is OK
-            std::istream response_stream(&response);
-            std::string http_version;
-            response_stream >> http_version;
-            unsigned int status_code;
-            response_stream >> status_code;
-            std::string status_message;
-            std::getline(response_stream, status_message);
-
-            if (!response_stream || http_version.substr(0,5) != "HTTP/")
-            {
-                return "error: Invalid response";
-            }
-
-            if (status_code != 200)
-            {
-                std::cout << "status_code: " << status_code << "\n";
-                return "error: Status Code not 2000";
-            }
-
-            // Read the response headers, which are terminated by a black line.
-            asio::read_until(*_psocket, response, "\r\n\r\n");
-            // Process the response headers
-            std::string header;
-            while (std::getline(response_stream, header) && header != "\r"){
-            //do something with this header
-            }
-
-            string ret;			// result body
-            ostringstream ssRes;
-            ssRes << &response;
-            ret.append(ssRes.str());
-            // Read until EOF
-            asio::error_code ec;
-            while (asio::read(*_psocket, response, asio::transfer_at_least(1), ec)){
-                ostringstream ssRes;
-                ssRes << &response;
-                ret.append(ssRes.str());
-            }
-            if ( ec != asio::error::eof){
-                //throw asio::system_error(ec);
-            }
-            return ret;
-//        }
-//        catch (std::exception& e)
-//        {
-//            std::cout << "Exception: " << e.what() << "\n\n";
-//            return std::string("\"error\":")  + std::string(e.what());
-//        }
+    return getResponse(request_stream.str());
 }
 
-    string HttpClient::post(const string& path, const string& post_data, data_type type)
-    {
-//        try{
-            // Form the request. We specify the "Connection: close" header so that the s
-            // server will close the socket after transmitting the response. This will
-            // allow us to treat all data up until the EOF as the content.
-            asio::streambuf request;
-            std::ostream request_stream(&request);
-            request_stream << "POST " << path << " HTTP/1.1\r\n";
-            request_stream << "Host: " << _host << "\r\n";
-            if (type == JSON)
-                request_stream << "Accept: application/json \r\n";
-            else
-                request_stream << "Accept: */* \r\n";
-            if (_x_api_key != "")
-                request_stream << "X-Api-Key: " << _x_api_key << "\r\n";
-            if (_access_token != "")
-                request_stream << "Authorization: Bearer " << _access_token << "\r\n";
-            if (type == JSON)
-                request_stream << "Content-type: application/json \r\n";
-            if (post_data != ""){
-                int content_length = post_data.length();
-                request_stream << "Content-length: " << content_length << "\r\n";
-            }
-            request_stream << "Connection: close \r\n\r\n";
+string HttpClient::post(const string& path, const string& post_data, data_type type)
+{
+    assert (GetErrorCode() == NO_ERROR);
 
-            if(post_data != "")
-                request_stream << post_data;
+    std::ostringstream request_stream;
+    request_stream << "POST " << path << " HTTP/1.1\r\n";
+    request_stream << "Host: " << _host << "\r\n";
+    if (type == JSON)
+        request_stream << "Accept: application/json \r\n";
+    else
+        request_stream << "Accept: */* \r\n";
+    if (_x_api_key != "")
+        request_stream << "X-Api-Key: " << _x_api_key << "\r\n";
+    if (_access_token != "")
+        request_stream << "Authorization: Bearer " << _access_token << "\r\n";
+    if (type == JSON)
+        request_stream << "Content-type: application/json \r\n";
+    if (post_data != ""){
+        int content_length = post_data.length();
+        request_stream << "Content-length: " << content_length << "\r\n";
+    }
+    request_stream << "Connection: close \r\n\r\n";
 
-            // Send the request
-            asio::write(*_psocket, request);
+    if(post_data != "")
+        request_stream << post_data;
 
-            // Read the response status line. The response streambuf will automatically
-            // grow to accommodate the entire line. The growth may be limited by passing
-            // a maximum size to the streambuf constructor.
-            asio::streambuf response;
-            asio::read_until(*_psocket, response, "\r\n");
-            // Check that response is OK
-            std::istream response_stream(&response);
-            std::string http_version;
-            response_stream >> http_version;
-            unsigned int status_code;
-            response_stream >> status_code;
-            std::string status_message;
-            std::getline(response_stream, status_message);
+    return getResponse(request_stream.str());
+}
 
-            if (!response_stream || http_version.substr(0,5) != "HTTP/")
-            {
-                return "error: Invalid response";
-            }
 
-            if (status_code != 200)
-            {
-                if (status_code == 302)
-                    std::cout << "redirecting";
-                else{
-                    std::cout << "status_code: " << status_code << "\n";
-                    return "error: status code not 200";
-                }
-            }
 
-            // Read the response headers, which are terminated by a black line.
-            asio::read_until(*_psocket, response, "\r\n\r\n");
-            // Process the response headers
-            std::string header;
-            while (std::getline(response_stream, header) && header != "\r"){
-            //do something with this header
-            }
+string HttpClient::getResponse(const string &request){
 
-            ostringstream oss;
-            oss << &response;
-            string ret;
-            ret.append(oss.str());
+    if (mysendall(_server_socket, request.c_str(), request.size()) == -1){
+        return "error: \"send request error\"";
+    }
 
-            // Read until EOF
-            asio::error_code ec;
-            //std::stringstream ret;
-            while (asio::read(*_psocket, response, asio::transfer_at_least(1), ec)){
-                ostringstream oss;
-                oss << &response;
-                ret.append(oss.str());
-            }
-            if ( ec != asio::error::eof){
-//                throw asio::system_error(ec);
-            }
-            return ret;
-//       }
-//       catch (std::exception& e)
-//       {
-//           std::cout << "Exception: " << e.what() << "\n\n";
-//           return std::string("error")  + std::string(e.what());
-//       }
-   }
+    std::ostringstream response_stream;
+    char buf[1024];
+    while(1){
+        memset(buf, 0, sizeof buf);
+        int n = myrecv(_server_socket, buf, sizeof buf, 0);
+        if (n > 0){
+            for(int i = 0; i<n; ++i)
+                response_stream << buf[i];
+            continue;
+        }
+        if (n == 0){
+            break;
+        }
+        if (n < 0){
+            return "error: \"receive response error \"";
+        }
+    }
+
+    string raw_response = response_stream.str();
+    size_t header_end_index = raw_response.find("\r\n\r\n");
+    if (header_end_index == string::npos){
+        return "error: \"invalid response\"";
+    }
+    return raw_response.substr(header_end_index+4);
+}
 
 } // namespace http_client
