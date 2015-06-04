@@ -49,8 +49,6 @@ HttpClient::HttpClient(const string &host, const string &port)
 
     freeaddrinfo(server_info);
 
-
-
     _host = host;
 }
 
