@@ -3,7 +3,7 @@ set (CODE_DIR $ENV{HOME}/code)
 set (MYJSON_DIR "${CODE_DIR}/cpp/MyJson")
 set (JSONCPP_DIR ${CODE_DIR}/thirdParty/jsoncpp/dist)
 set (LOGGER_DIR ${CODE_DIR}/cpp/Logger/src)
-set (DATETIME_DIR ${CODE_DIR}/cpp/DateTime)
+set (DATETIME_DIR ${CODE_DIR}/cpp/DateTime/src)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
         option( gtest_force_shared_crt

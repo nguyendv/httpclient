@@ -2,6 +2,7 @@
 #include "errors.h"
 #include <assert.h>
 #include <sstream>
+#include <cstring>
 
 namespace http_client {
 
