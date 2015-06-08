@@ -1,5 +1,5 @@
 set (GTEST_DIR "../../../thirdParty/gtest-1.7.0")
-set (CODE_DIR "/Users/vietdung2910/code")
+set (CODE_DIR $ENV{HOME}/code)
 set (MYJSON_DIR "${CODE_DIR}/cpp/MyJson")
 set (JSONCPP_DIR ${CODE_DIR}/thirdParty/jsoncpp/dist)
 set (LOGGER_DIR ${CODE_DIR}/cpp/Logger/src)
