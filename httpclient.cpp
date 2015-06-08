@@ -1,5 +1,6 @@
 #include "httpclient.h"
 #include "errors.h"
+#include <assert.h>
 #include <sstream>
 
 namespace http_client {
@@ -44,6 +45,7 @@ HttpClient::HttpClient(const string &host, const string &port)
     }
 
     if (p==NULL){
+        freeaddrinfo(server_info);
         return;
     }
 

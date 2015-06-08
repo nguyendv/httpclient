@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.2)
 
 project("HttpClient")
 
-set (CODE_DIR "/Users/vietdung2910/code")
+set (CODE_DIR $ENV{HOME}/code)
 
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR
