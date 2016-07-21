@@ -1,7 +1,6 @@
 #ifndef HTTP_CLIENT_H
 #define HTTP_CLIENT_H
 
-
 #include <iostream>
 #include <string>
 #include "mysocket.h"
@@ -24,19 +23,18 @@ namespace http_client {
 
         int GetErrorCode()
         {
-//            printf("http client error code: %d\n", _error);
-            return _error;
+            return error_;
         }
 
         /**
          * @brief set_x_api_key set X-Api-Key header for the request
          */
-        void    set_x_api_key(const string& x_api_key){_x_api_key = x_api_key;}
+        void    set_x_api_key(const string& x_api_key){x_api_key_ = x_api_key;}
 
         /**
          * @brief set_access_token set OAuth2 access token for the request
          */
-        void    set_access_token(const string& access_token){_access_token = access_token;}
+        void    set_access_token(const string& access_token){access_token_ = access_token;}
 
         /**
          * @brief get set GET request
@@ -55,12 +53,12 @@ namespace http_client {
 
         string getResponse(const string& request);
 
-        mysocket		_server_socket;
-        int				_error;
+        mysocket		server_socket_;
+        int				error_;
 
-        string			_host;
-        string			_x_api_key;
-        string			_access_token;
+        string			host_;
+        string			x_api_key_;
+        string			access_token_;
     };
 } //namespace http_client
 

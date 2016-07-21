@@ -12,7 +12,9 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 
 endif()
 
-include_directories ( 	${GTEST_DIR}/include
+include_directories (
+                        ${CMAKE_CURRENT_SOURCE_DIR}
+                        ${GTEST_DIR}/include
                         ${MYJSON_DIR}/src
                         ${LOGGER_DIR}
                         ${JSONCPP_DIR}
@@ -21,8 +23,9 @@ include_directories ( 	${GTEST_DIR}/include
 
 link_directories (${GTEST_DIR}/build-mac   ${MYJSON_DIR}/build)
 
-add_executable (HttpClientTest httpclient_test.cpp  ${LOGGER_DIR}/logger.cpp
-                         ${JSONCPP_DIR}/jsoncpp.cpp  ${DATETIME_DIR}/datetime.cpp)
+add_executable (HttpClientTest src/httpclient_test.cpp
+                                jsoncpp/jsoncpp.cpp
+            )
 
 target_link_libraries (HttpClientTest 	HttpClient gtest MyJson)
 
