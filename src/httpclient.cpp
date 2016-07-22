@@ -19,6 +19,14 @@ HttpClient::HttpClient(const string& hostStr)
     server_socket_(MY_INVALID_SOCKET),
     host_(hostStr)
 {
+}
+
+HttpClient::~HttpClient()
+{
+}
+
+void HttpClient::connectToHost()
+{
     myaddrinfo hints, *server_info;
 
     memset(&hints, 0, sizeof hints);
@@ -57,18 +65,9 @@ HttpClient::HttpClient(const string& hostStr)
     freeaddrinfo(server_info);
 }
 
-HttpClient::~HttpClient()
-{
-}
-
-void HttpClient::connectToHost()
-{
-
-}
-
 string HttpClient::get(const string &path, data_type type)
 {
-    assert (GetErrorCode() == NO_ERROR);
+    connectToHost();
     std::ostringstream request_stream;
     request_stream << "GET " << path << " HTTP/1.1\r\n";
     request_stream << "Host: " << host_.hostName() << "\r\n";
@@ -87,7 +86,7 @@ string HttpClient::get(const string &path, data_type type)
 
 string HttpClient::post(const string& path, const string& post_data, data_type type)
 {
-    assert (GetErrorCode() == 0);
+    connectToHost();
 
     std::ostringstream request_stream;
     request_stream << "POST " << path << " HTTP/1.1\r\n";
