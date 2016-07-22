@@ -5,8 +5,9 @@
 #include <string>
 #include "mysocket.h"
 
-using namespace std;
+#include "host.h"
 
+using namespace std;
 
 
 namespace httpclient {
@@ -18,7 +19,7 @@ namespace httpclient {
 
     class HttpClient{
     public:
-        HttpClient (const string& host, const string& port="");
+        HttpClient (const string& hostStr); 
         ~HttpClient();
 
         int GetErrorCode()
@@ -50,13 +51,14 @@ namespace httpclient {
          */
         string  	post(const string& path, const string& post_data="", data_type type=HTML);
     private:
-
+        
+        void connectToHost();
         string getResponse(const string& request);
 
         mysocket		server_socket_;
         int				error_;
 
-        string			host_;
+        Host host_;
         string			x_api_key_;
         string			access_token_;
     };
