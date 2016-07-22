@@ -1,0 +1,15 @@
+{
+    "packages": [
+        {
+            "name": "mysocket",
+            "version": "v0.1.0"
+        },
+        {
+            "name": "catch",
+            "version": "v1.5.0"
+        }
+    ],
+    "meta": {
+        "destDir": "thirdParty"
+    }
+}
