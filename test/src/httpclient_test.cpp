@@ -2,7 +2,7 @@
 #include "catch.hpp"
 #include "httpclient.h"
 
-using namespace http_client;
+using namespace httpclient;
 
 TEST_CASE( "Http get", "[get]"){
   HttpClient httpClient("127.0.0.1", "3000");

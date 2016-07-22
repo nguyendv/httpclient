@@ -9,7 +9,7 @@ using namespace std;
 
 
 
-namespace http_client {
+namespace httpclient {
 
     enum data_type {
       JSON,

@@ -4,7 +4,7 @@
 #include <cstring>
 
 
-namespace http_client {
+namespace httpclient {
 const int NO_ERROR = 0;
 const int ADDR_INFO_ERROR = 1;
 const int INVALID_SOCKET_ERROR = 2;
