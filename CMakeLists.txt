@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.2)
 
 project("HttpClient")
 
-
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR
     "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     set(warnings "-Wall -Wextra -Werror")
@@ -17,7 +16,8 @@ add_library(httpclient SHARED src/httpclient.cpp    )
 include_directories (
   ${CMAKE_CURRENT_SOURCE_DIR}/include
   ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/mysocket
+  ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/catch
 )
 
-#enable_testing()
-#add_subdirectory(test)
+enable_testing()
+add_subdirectory(test)

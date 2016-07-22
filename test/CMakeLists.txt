@@ -1,32 +1,18 @@
-set (GTEST_DIR "../../../thirdParty/gtest-1.7.0")
-set (CODE_DIR $ENV{HOME}/code)
-set (MYJSON_DIR "${CODE_DIR}/cpp/MyJson")
-set (JSONCPP_DIR ${CODE_DIR}/thirdParty/jsoncpp/dist)
-set (LOGGER_DIR ${CODE_DIR}/cpp/Logger/src)
-set (DATETIME_DIR ${CODE_DIR}/cpp/DateTime/src)
-
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-        option( gtest_force_shared_crt
-                "Use shared (DLL) run-time lib even when Google Test is built as static lib."
-                ON)
-
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR
+    "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    set(warnings "-Wall -Wextra -Werror")
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    set(warnings "/W4 /WX /EHsc")
 endif()
 
-include_directories (
-                        ${CMAKE_CURRENT_SOURCE_DIR}
-                        ${GTEST_DIR}/include
-                        ${MYJSON_DIR}/src
-                        ${LOGGER_DIR}
-                        ${JSONCPP_DIR}
-                        ${DATETIME_DIR}
-                        ${CODE_DIR}/cpp/include)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wno-deprecated-declarations -Wno-c++11-extensions")
 
-link_directories (${GTEST_DIR}/build-mac   ${MYJSON_DIR}/build)
+add_executable (HttpClientTest 
+  src/httpclient_test.cpp
+)
 
-add_executable (HttpClientTest src/httpclient_test.cpp
-                                jsoncpp/jsoncpp.cpp
-            )
-
-target_link_libraries (HttpClientTest 	HttpClient gtest MyJson)
+target_link_libraries (HttpClientTest 
+  httpclient
+)
 
 add_test(HttpClientTest HttpClientTest)
