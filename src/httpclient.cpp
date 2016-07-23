@@ -1,9 +1,11 @@
 #include "httpclient.h"
+#include "exception.h"
 #include <assert.h>
 #include <sstream>
 #include <cstring>
 
 #include <iostream>
+
 
 namespace httpclient {
 const int NO_ERROR = 0;
@@ -35,31 +37,33 @@ void HttpClient::connectToHost()
 
     // Get server information
     int status = mygetaddrinfo (host_.hostName().c_str(), host_.service().c_str(), &hints, &server_info);
+
     if (status != 0){
-        error_ = ADDR_INFO_ERROR;
-        return;
+      freeaddrinfo(server_info);
+      throw httpclient::Exception("Can't get host address info");
     }
 
     // Try to connect to server using server info
     myaddrinfo *p;
+
+    // Loop over the linked list server_info, return the first connected one
+    // Because a server may provide multiple records/ip versions, looping is necessary
     for (p=server_info; p!=NULL; p=p->ai_next){
         server_socket_ = mycreatesocket (p->ai_family, p->ai_socktype, p->ai_protocol);
         if (server_socket_ == MY_INVALID_SOCKET){
-            error_ = INVALID_SOCKET_ERROR;
-            continue;
+          continue;
         }
 
         if (myconnect(server_socket_, p->ai_addr, p->ai_addrlen) != 0){
-            error_ = CONNECT_SOCKET_ERROR;
-            continue;
+          continue;
         }
 
         break;
     }
 
-    if (p==NULL){
-        freeaddrinfo(server_info);
-        return;
+    if(p == NULL){
+      freeaddrinfo(server_info);
+      throw httpclient::Exception("Can't connect to server");
     }
 
     freeaddrinfo(server_info);
