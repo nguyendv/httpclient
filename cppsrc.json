@@ -2,7 +2,7 @@
     "packages": [
         {
             "name": "net",
-            "version": "dev"
+            "version": "v0.1.0"
         },
         {
             "name": "catch",

@@ -1,5 +1,5 @@
-#include "httpclient.h"
-#include "exception.h"
+#include "httpclient/httpclient.h"
+#include "httpclient/exception.h"
 #include <assert.h>
 #include <sstream>
 #include <cstring>
