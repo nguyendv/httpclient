@@ -4,6 +4,9 @@
 #include <sstream>
 #include <cstring>
 
+#include "net/streamsocket.h"
+#include "net/exception.h"
+
 #include <iostream>
 
 
@@ -18,7 +21,6 @@ const int CONNECT_SOCKET_ERROR = 3;
 
 HttpClient::HttpClient(const string& hostStr) 
   : error_(0), 
-    server_socket_(MY_INVALID_SOCKET),
     host_(hostStr)
 {
 }
@@ -29,44 +31,15 @@ HttpClient::~HttpClient()
 
 void HttpClient::connectToHost()
 {
-    myaddrinfo hints, *server_info;
-
-    memset(&hints, 0, sizeof hints);
-    hints.ai_family = AF_UNSPEC;
-    hints.ai_socktype = SOCK_STREAM;
-
-    // Get server information
-    int status = mygetaddrinfo (host_.hostName().c_str(), host_.service().c_str(), &hints, &server_info);
-
-    if (status != 0){
-      freeaddrinfo(server_info);
-      throw httpclient::Exception("Can't get host address info");
-    }
-
-    // Try to connect to server using server info
-    myaddrinfo *p;
-
-    // Loop over the linked list server_info, return the first connected one
-    // Because a server may provide multiple records/ip versions, looping is necessary
-    for (p=server_info; p!=NULL; p=p->ai_next){
-        server_socket_ = mycreatesocket (p->ai_family, p->ai_socktype, p->ai_protocol);
-        if (server_socket_ == MY_INVALID_SOCKET){
-          continue;
-        }
-
-        if (myconnect(server_socket_, p->ai_addr, p->ai_addrlen) != 0){
-          continue;
-        }
-
-        break;
-    }
-
-    if(p == NULL){
-      freeaddrinfo(server_info);
-      throw httpclient::Exception("Can't connect to server");
-    }
-
-    freeaddrinfo(server_info);
+  try
+  {
+    streamSock_.connectToHost(host_.hostName(), host_.service());
+  }
+  catch (const net::Exception& ex)
+  {
+    cout << ex.what();
+    throw httpclient::Exception("Can't connect to server");
+  }
 }
 
 string HttpClient::get(const string &path, data_type type)
@@ -121,34 +94,29 @@ string HttpClient::post(const string& path, const string& post_data, data_type t
 
 string HttpClient::getResponse(const string &request){
 
-    if (mysendall(server_socket_, request.c_str(), request.size()) == -1){
-        return "error: \"send request error\"";
-    }
+  try
+  {
+    streamSock_.sendMsg(request);
+  }
+  catch (const net::Exception& ex)
+  {
+    throw httpclient::Exception("Couldn't send request to server");
+  }
 
-    std::ostringstream response_stream;
-    char buf[1024];
-    while(1){
-        memset(buf, 0, sizeof buf);
-        int bytes_received = myrecv(server_socket_, buf, sizeof buf, 0);
-        if (bytes_received > 0){
-            for(int i = 0; i<bytes_received; ++i)
-                response_stream << buf[i];
-            continue;
-        }
-        if (bytes_received == 0){
-            break;
-        }
-        if (bytes_received < 0){
-            return "error: \"receive response error \"";
-        }
-    }
-
-    string raw_response = response_stream.str();
+  try
+  {
+    string raw_response = streamSock_.receiveMsg();
     size_t header_end_index = raw_response.find("\r\n\r\n");
     if (header_end_index == string::npos){
-        return "error: \"invalid response\"";
+      throw httpclient::Exception("Invalid response from server");
     }
     return raw_response.substr(header_end_index+4);
+  }
+  catch (const net::Exception& ex)
+  {
+    throw httpclient::Exception("Couldn't receive response from server");
+  } 
+
 }
 
 } // namespace http_client

@@ -20,11 +20,8 @@ TEST_CASE ("Http Host", "[]")
 TEST_CASE( "Http get", "[get]")
 {
   HttpClient httpClient("127.0.0.1:3000");
-  std::cout << "hoho";
   httpClient.set_x_api_key("blobla");
-  std::cout << "hihi";
   string res = httpClient.get("/favbook");
-  std::cout << "haha";
   REQUIRE (res.compare("Harry Porter") == 0);
 }
 

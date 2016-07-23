@@ -1,8 +1,8 @@
 {
     "packages": [
         {
-            "name": "mysocket",
-            "version": "v0.1.0"
+            "name": "net",
+            "version": "dev"
         },
         {
             "name": "catch",

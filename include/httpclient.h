@@ -3,9 +3,8 @@
 
 #include <iostream>
 #include <string>
-#include "mysocket.h"
-
 #include "host.h"
+#include "net/streamsocket.h"
 
 using namespace std;
 
@@ -55,7 +54,7 @@ namespace httpclient {
         void connectToHost();
         string getResponse(const string& request);
 
-        mysocket		server_socket_;
+        net::StreamSocket streamSock_;
         int				error_;
 
         Host host_;
