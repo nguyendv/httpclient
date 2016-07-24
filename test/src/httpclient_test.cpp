@@ -1,8 +1,8 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
-#include "httpclient/httpclient.h"
+#include "httpclient/client.h"
 
-using namespace httpclient;
+using namespace http;
 
 #include <iostream>
 
@@ -19,9 +19,9 @@ TEST_CASE ("Http Host", "[]")
 
 TEST_CASE( "Http get", "[get]")
 {
-  HttpClient httpClient("127.0.0.1:3000");
+  Client httpClient("127.0.0.1:3000");
   httpClient.set_x_api_key("blobla");
-  string res = httpClient.get("/favbook");
-  REQUIRE (res.compare("Harry Porter") == 0);
+  Response res = httpClient.get("/favbook");
+  REQUIRE (res.body().compare("Harry Porter") == 0);
 }
 

@@ -12,8 +12,9 @@ endif()
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wno-deprecated-declarations -Wno-c++11-extensions")
 
 add_library(httpclient SHARED 
-  src/httpclient.cpp    
+  src/client.cpp    
   src/host.cpp
+  src/response.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/net/src/streamsocket_unix.cpp
 )
 

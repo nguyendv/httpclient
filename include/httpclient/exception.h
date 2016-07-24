@@ -1,6 +1,6 @@
 #include <stdexcept>
 
-namespace httpclient
+namespace http
 {
   class Exception : public std::domain_error
   {
@@ -8,4 +8,4 @@ namespace httpclient
     explicit Exception (const std::string& what)
       : domain_error(what){}
   };
-} // namespace httpclient
+} // namespace http

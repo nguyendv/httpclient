@@ -1,6 +1,6 @@
 #include "httpclient/host.h"
 
-using namespace httpclient;
+using namespace http;
 
 Host::Host(const string& host) : service_("http")
 {

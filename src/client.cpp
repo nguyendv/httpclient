@@ -42,16 +42,13 @@ void Client::connectToHost()
   }
 }
 
-string Client::get(const string &path, data_type type)
+Response Client::get(const string &path)
 {
     connectToHost();
     std::ostringstream request_stream;
     request_stream << "GET " << path << " HTTP/1.1\r\n";
     request_stream << "Host: " << host_.hostName() << "\r\n";
-    if (type == data_type::JSON)
-        request_stream << "Accept: application/json \r\n";
-    else
-        request_stream << "Accept: */* \r\n";
+    request_stream << "Accept: */* \r\n";
     if (x_api_key_ != "")
         request_stream << "X-Api-Key: " << x_api_key_ << "\r\n";
     if (access_token_ != "")
@@ -61,23 +58,25 @@ string Client::get(const string &path, data_type type)
     return getResponse(request_stream.str());
 }
 
-string Client::post(const string& path, const string& post_data, data_type type)
+Response Client::post(const string& path, const string& post_data )
 {
     connectToHost();
 
     std::ostringstream request_stream;
     request_stream << "POST " << path << " HTTP/1.1\r\n";
     request_stream << "Host: " << host_.hostName() << "\r\n";
-    if (type == JSON)
-        request_stream << "Accept: application/json \r\n";
-    else
-        request_stream << "Accept: */* \r\n";
+    //TODO: delete the following three comments after implement get/post json
+    //if (type == JSON)
+    //    request_stream << "Accept: application/json \r\n";
+    // else
+    request_stream << "Accept: */* \r\n";
     if (x_api_key_ != "")
         request_stream << "X-Api-Key: " << x_api_key_ << "\r\n";
     if (access_token_ != "")
         request_stream << "Authorization: Bearer " << access_token_ << "\r\n";
-    if (type == JSON)
-        request_stream << "Content-type: application/json \r\n";
+    //TODO: delete the following three comments after implement get/post json
+    //if (type == JSON)
+     //   request_stream << "Content-type: application/json \r\n";
     if (post_data != ""){
         int content_length = post_data.length();
         request_stream << "Content-length: " << content_length << "\r\n";
@@ -91,8 +90,7 @@ string Client::post(const string& path, const string& post_data, data_type type)
 }
 
 
-
-string Client::getResponse(const string &request){
+Response Client::getResponse(const string &request){
 
   try
   {
@@ -110,13 +108,13 @@ string Client::getResponse(const string &request){
     if (header_end_index == string::npos){
       throw http::Exception("Invalid response from server");
     }
-    return raw_response.substr(header_end_index+4);
+
+    return Response(raw_response.substr(header_end_index+4));
   }
   catch (const net::Exception& ex)
   {
     throw http::Exception("Couldn't receive response from server");
   } 
-
 }
 
 } // namespace http

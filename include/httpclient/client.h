@@ -3,18 +3,16 @@
 
 #include <iostream>
 #include <string>
+
 #include "httpclient/host.h"
+#include "httpclient/response.h"
+
 #include "net/streamsocket.h"
 
 using namespace std;
 
 
 namespace http {
-
-    enum data_type {
-      JSON,
-      HTML
-    };
 
     class Client{
     public:
@@ -39,20 +37,19 @@ namespace http {
         /**
          * @brief get set GET request
          */
-        string 	get (const string& path, data_type type=HTML);
+        Response get (const string& path );
 
         /**
          * @brief post post data to server
          * @param path
          * @param post_data
-         * @param type HTML: post_data is form data. type JSON: post_data is json string
          * @return
          */
-        string  	post(const string& path, const string& post_data="", data_type type=HTML);
+        Response post(const string& path, const string& post_data="");
     private:
         
         void connectToHost();
-        string getResponse(const string& request);
+        Response getResponse(const string& request);
 
         net::StreamSocket streamSock_;
         int				error_;

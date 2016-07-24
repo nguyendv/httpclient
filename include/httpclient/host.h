@@ -7,7 +7,7 @@
 
 using namespace std;
 
-namespace httpclient
+namespace http
 {
   class Host
   {
@@ -33,4 +33,4 @@ namespace httpclient
     // So service_ is 'http' by default
     string service_; 
   };
-} // namesapce httpclient
+} // namesapce http
