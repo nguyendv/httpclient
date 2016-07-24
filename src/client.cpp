@@ -74,7 +74,7 @@ Response Client::post(const string& path, const string& post_data )
         request_stream << "X-Api-Key: " << x_api_key_ << "\r\n";
     if (access_token_ != "")
         request_stream << "Authorization: Bearer " << access_token_ << "\r\n";
-    //TODO: delete the following three comments after implement get/post json
+    //TODO: delete the following two comments after implement get/post json
     //if (type == JSON)
      //   request_stream << "Content-type: application/json \r\n";
     if (post_data != ""){
