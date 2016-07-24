@@ -98,7 +98,7 @@ Response Client::getResponse(const string &request){
   }
   catch (const net::Exception& ex)
   {
-    throw http::Exception("Couldn't send request to server");
+    throw http::Exception("Couldn't send request to server \n    [net]:" + string(ex.what()));
   }
 
   try
