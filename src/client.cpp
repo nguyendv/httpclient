@@ -37,8 +37,7 @@ void Client::connectToHost()
   }
   catch (const net::Exception& ex)
   {
-    cout << ex.what();
-    throw http::Exception("Can't connect to server");
+    throw http::Exception("Can't connect to server\n    [net]: " + string(ex.what()));
   }
 }
 
@@ -113,7 +112,7 @@ Response Client::getResponse(const string &request){
   }
   catch (const net::Exception& ex)
   {
-    throw http::Exception("Couldn't receive response from server");
+    throw http::Exception("Couldn't receive response from server\n    [net]:" + string(ex.what()));
   } 
 }
 
