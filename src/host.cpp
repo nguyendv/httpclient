@@ -2,7 +2,7 @@
 
 using namespace http;
 
-Host::Host(const string& host) : service_("http")
+Host::Host(const string& host) : service_("80")
 {
   parseInfo(host); 
 }
@@ -18,7 +18,6 @@ void Host::parseInfo(const string& host)
     hostName_ = host.substr(0, colonPos );
   }
   else{
-    service_ = "http";
     hostName_ = host;
   }
 }
